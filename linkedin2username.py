@@ -18,8 +18,7 @@ import urllib.parse
 import requests
 import urllib3
 
-from selenium import webdriver
-from selenium.common.exceptions import WebDriverException
+from dphelper import DPHelper
 
 BANNER = r"""
 
@@ -297,12 +296,9 @@ def get_webdriver():
     """
     Try to get a working Selenium browser driver
     """
-    for browser in [webdriver.Firefox, webdriver.Chrome]:
-        try:
-            return browser()
-        except WebDriverException:
-            continue
-    return None
+    browser=DPHelper(browser_path=None,HEADLESS=False)
+
+    return browser
 
 
 def login():
@@ -323,8 +319,8 @@ def login():
     print("[*] Log in to LinkedIn. Leave the browser open and press enter when ready...")
     input("Ready? Press Enter!")
 
-    selenium_cookies = driver.get_cookies()
-    driver.quit()
+    selenium_cookies = driver.cookies(as_dict=True)
+    driver.close()
 
     # Initialize and return a requests session
     session = requests.Session()
