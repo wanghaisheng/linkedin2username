@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn2Username</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <h1 class="text-3xl font-bold mb-4">LinkedIn2Username</h1>
+        
+        <form id="scrapeForm" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="company">
+                    Company Name
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="company" type="text" placeholder="Company Name" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="domain">
+                    Domain (Optional)
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="domain" type="text" placeholder="example.com">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="depth">
+                    Search Depth (Optional)
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="depth" type="number" placeholder="Search Depth">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="sleep">
+                    Sleep Time (seconds)
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="sleep" type="number" value="0">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="keywords">
+                    Keywords (Optional, comma-separated)
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="keywords" type="text" placeholder="keyword1,keyword2,keyword3">
+            </div>
+            <div class="mb-4">
+                <label class="flex items-center">
+                    <input type="checkbox" id="geoblast" class="form-checkbox">
+                    <span class="ml-2 text-gray-700 text-sm font-bold">Use Geoblast</span>
+                </label>
+            </div>
+            <div class="flex items-center justify-between">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                    Start Scraping
+                </button>
+            </div>
+        </form>
+        
+        <div id="results" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 hidden">
+            <h2 class="text-xl font-bold mb-2">Results</h2>
+            <pre id="resultsContent" class="bg-gray-100 p-4 rounded"></pre>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('scrapeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const company = document.getElementById('company').value;
+            const domain = document.getElementById('domain').value;
+            const depth = document.getElementById('depth').value;
+            const sleep = document.getElementById('sleep').value;
+            const keywords = document.getElementById('keywords').value.split(',').filter(k => k.trim() !== '');
+            const geoblast = document.getElementById('geoblast').checked;
+
+            const payload = {
+                company,
+                domain: domain || undefined,
+                depth: depth ? parseInt(depth) : undefined,
+                sleep: parseInt(sleep),
+                keywords: keywords.length > 0 ? keywords : undefined,
+                geoblast
+            };
+
+            try {
+                const response = await axios.post('http://localhost:8000/scrape', payload);
+                document.getElementById('results').classList.remove('hidden');
+                document.getElementById('resultsContent').textContent = JSON.stringify(response.data, null, 2);
+            } catch (error) {
+                alert('An error occurred: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
